@@ -67,7 +67,7 @@ function addDraggableHandler(target) {
 function isInTrash(target) {
     var offset1 = target.offset()
     var offset2 = $("#trash").offset()
-    console.log(offset1, offset2, offset1.top - offset2.top, offset1.left - offset2.left)
+//    console.log(offset1, offset2, offset1.top - offset2.top, offset1.left - offset2.left)
     if (Math.abs(offset1.top - offset2.top) < 50 && 
         Math.abs(offset1.left - offset2.left) < 50) {
             return true;
@@ -152,26 +152,36 @@ function movehighlightedGroup(event, ui) {
         $(this).offset(offset);
     })
 
-    if (groupFacingDir) {
+    if (groupFacingDir && !event.shiftKey) {
         var dotProduct = movement[0] * groupFacingDir[0] + movement[1] * groupFacingDir[1];
         var magMovement = Math.sqrt(movement[0] ** 2 + movement[1] ** 2)
         var magOld = Math.sqrt(groupFacingDir[0] ** 2 + groupFacingDir[1] ** 2)
         var angle = Math.acos(dotProduct / (magMovement * magOld))
+        if ((movement[1]-groupFacingDir[1])*(movement[0]-groupFacingDir[0])<0){
+            console.log("flip!")
+            angle = -angle
+        }
+        // angle = Math.round(angle*16*Math.PI)/(16*Math.PI);
         console.log(angle)
 
-        var targetOffset = $(target).offset()
-        console.log("targetOffset", targetOffset)
         highlightedTiles.not(target).each(function(){
+            var targetOffset = $(target).offset()
             var offset = $(this).offset()
+
+            // Find current Distance from moved object
             var top = targetOffset.top - offset.top
             var left = targetOffset.left - offset.left
-            console.log("top", top, "left", left)
+            // console.log("top", top, "left", left)
+
+            // Find new rotated vector
             var topRotated = (Math.cos(angle) * top) - (Math.sin(angle) * left)
             var leftRotated = (Math.sin(angle) * top) + (Math.cos(angle) * left)
-            offset.top -= topRotated - top
-            offset.left += leftRotated - left
-            console.log("movement vector", topRotated, leftRotated)
-            $(this).offset(offset)
+            // console.log("movement vector", topRotated, leftRotated)
+
+            // Move from the moved object to where I should be
+            targetOffset.top -= topRotated
+            targetOffset.left -= leftRotated
+            $(this).offset(targetOffset)
         })
     }
 
