@@ -153,15 +153,11 @@ function movehighlightedGroup(event, ui) {
     })
 
     if (groupFacingDir && !event.shiftKey) {
-        var dotProduct = movement[0] * groupFacingDir[0] + movement[1] * groupFacingDir[1];
-        var magMovement = Math.sqrt(movement[0] ** 2 + movement[1] ** 2)
-        var magOld = Math.sqrt(groupFacingDir[0] ** 2 + groupFacingDir[1] ** 2)
-        var angle = Math.acos(dotProduct / (magMovement * magOld))
-        if ((movement[1]-groupFacingDir[1])*(movement[0]-groupFacingDir[0])<0){
-            console.log("flip!")
-            angle = -angle
-        }
-        // angle = Math.round(angle*16*Math.PI)/(16*Math.PI);
+        var angle1 = Math.atan2(movement[0],movement[1])
+        var angle2 = Math.atan2( groupFacingDir[0],groupFacingDir[1])
+        var angle = angle2-angle1
+        var nTurns = 8
+        angle = Math.round(angle/(2*Math.PI)*nTurns)*(2*Math.PI)/nTurns;
         console.log(angle)
 
         highlightedTiles.not(target).each(function(){
